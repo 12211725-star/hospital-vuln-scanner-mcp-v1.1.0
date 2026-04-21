@@ -1,8 +1,8 @@
 # Hospital Vulnerability Scanner MCP Server
 
-[![PyPI Version](https://img.shields.io/pypi/v/hospital-vuln-scanner-mcp.svg)](https://pypi.org/project/hospital-vuln-scanner-mcp)
-[![Python](https://img.shields.io/pypi/pyversions/hospital-vuln-scanner-mcp.svg)](https://pypi.org/project/hospital-vuln-scanner-mcp)
-[![License](https://img.shields.io/github/license/12211725-star/hospital-vuln-scanner-mcp.svg)](https://github.com/12211725-star/hospital-vuln-scanner-mcp/blob/main/LICENSE)
+[![PyPI Version](https://img.shields.io/pypi/v/hospital-vuln-mcp.svg)](https://pypi.org/project/hospital-vuln-mcp)
+[![Python](https://img.shields.io/pypi/pyversions/hospital-vuln-mcp.svg)](https://pypi.org/project/hospital-vuln-mcp)
+[![License](https://img.shields.io/github/license/12211725-star/hospital-vuln-mcp.svg)](https://github.com/12211725-star/hospital-vuln-mcp/blob/main/LICENSE)
 
 English | [中文](README_CN.md)
 
@@ -23,10 +23,10 @@ English | [中文](README_CN.md)
 
 ```bash
 # 使用 uvx（推荐）
-uvx hospital-vuln-scanner-mcp
+uvx hospital-vuln-mcp
 
 # 或使用 pip
-pip install hospital-vuln-scanner-mcp
+pip install hospital-vuln-mcp
 ```
 
 ### 2. 集成到 MCP 客户端
@@ -36,9 +36,9 @@ pip install hospital-vuln-scanner-mcp
 ```json
 {
   "mcpServers": {
-    "hospital-vuln-scanner-mcp": {
+    "hospital-vuln-mcp": {
       "command": "uvx",
-      "args": ["hospital-vuln-scanner-mcp"],
+      "args": ["hospital-vuln-mcp"],
       "env": {
         "HOSPITAL_VULN_MCP_LOG_LEVEL": "INFO"
       }
@@ -251,8 +251,8 @@ start_scan()
 ## 🔧 开发
 
 ```bash
-git clone https://github.com/12211725-star/hospital-vuln-scanner-mcp.git
-cd hospital-vuln-scanner-mcp
+git clone https://github.com/12211725-star/hospital-vuln-mcp.git
+cd hospital-vuln-mcp
 pip install -e ".[dev]"
 
 # 运行测试
@@ -290,7 +290,7 @@ MIT License
 
 ## 🔗 链接
 
-- **GitHub**: https://github.com/12211725-star/hospital-vuln-scanner-mcp
-- **Issues**: https://github.com/12211725-star/hospital-vuln-scanner-mcp/issues
-- **PyPI**: https://pypi.org/project/hospital-vuln-scanner-mcp/
+- **GitHub**: https://github.com/12211725-star/hospital-vuln-mcp
+- **Issues**: https://github.com/12211725-star/hospital-vuln-mcp/issues
+- **PyPI**: https://pypi.org/project/hospital-vuln-mcp/
 - **魔搭 MCP 广场**: https://modelscope.cn/mcp/servers
