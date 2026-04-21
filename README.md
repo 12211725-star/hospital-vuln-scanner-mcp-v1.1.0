@@ -37,7 +37,8 @@ pip install hospital-vuln-mcp
 {
   "mcpServers": {
     "hospital-vuln-mcp": {
-      "url": "http://127.0.0.1:8000/mcp/",
+      "command": "uvx",
+      "args": ["hospital-vuln-mcp"],
       "env": {
         "HOSPITAL_VULN_MCP_LOG_LEVEL": "INFO"
       }
@@ -46,7 +47,23 @@ pip install hospital-vuln-mcp
 }
 ```
 
-### 启动服务
+### Docker 方式
+
+```json
+{
+  "mcpServers": {
+    "hospital-vuln-mcp": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "hospital-vuln-mcp"],
+      "env": {
+        "HOSPITAL_VULN_MCP_LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+
+### Streamable HTTP 远程部署
 
 ```bash
 hospital-vuln-mcp --transport http --host 0.0.0.0 --port 8000
