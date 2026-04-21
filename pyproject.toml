@@ -1,5 +1,5 @@
 [project]
-name = "hospital-vuln-mcp"
+name = "hospital-vuln-scanner-mcp"
 version = "1.1.1"
 description = "Hospital Vulnerability Scanner MCP Server - Security scanning for healthcare systems"
 readme = "README.md"
@@ -28,12 +28,12 @@ classifiers = [
 ]
 
 [project.scripts]
-hospital-vuln-mcp = "hospital_vuln_mcp:main"
+hospital-vuln-scanner-mcp = "hospital_vuln_mcp:main"
 
 [project.urls]
-Homepage = "https://github.com/12211725-star/hospital-vuln-mcp"
-Repository = "https://github.com/12211725-star/hospital-vuln-mcp"
-Documentation = "https://github.com/12211725-star/hospital-vuln-mcp/blob/main/README.md"
+Homepage = "https://github.com/12211725-star/hospital-vuln-scanner-mcp"
+Repository = "https://github.com/12211725-star/hospital-vuln-scanner-mcp"
+Documentation = "https://github.com/12211725-star/hospital-vuln-scanner-mcp/blob/main/README.md"
 
 [build-system]
 requires = ["hatchling"]

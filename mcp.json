@@ -1,12 +1,12 @@
 {
-  "name": "hospital-vuln-mcp",
+  "name": "hospital-vuln-scanner-mcp",
   "version": "1.1.1",
   "description": "医院漏洞扫描 MCP 服务器，为 AI 助手提供医疗系统安全扫描能力",
   "author": "Hospital Security Team",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/12211725-star/hospital-vuln-mcp.git"
+    "url": "https://github.com/12211725-star/hospital-vuln-scanner-mcp.git"
   },
   "tools": [
     {
