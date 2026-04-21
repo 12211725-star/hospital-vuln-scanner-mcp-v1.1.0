@@ -1,234 +1,254 @@
-# 医院漏洞扫描 MCP 服务器 🏥🔒
+# 医院漏洞扫描 MCP 服务器
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![MCP](https://img.shields.io/badge/MCP-Protocol-green.svg)](https://modelcontextprotocol.io/)
+[![PyPI Version](https://img.shields.io/pypi/v/hospital-vuln-mcp.svg)](https://pypi.org/project/hospital-vuln-mcp)
+[![Python](https://img.shields.io/pypi/pyversions/hospital-vuln-mcp.svg)](https://pypi.org/project/hospital-vuln-mcp)
+[![License](https://img.shields.io/github/license/12211725-star/hospital-vuln-scanner-mcp-v1.1.0.svg)](https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0/blob/main/LICENSE)
 
-为 AI 助手提供医院/医疗系统安全扫描能力的 MCP 服务器。
+[English](README.md) | 中文
+
+医院漏洞扫描 MCP 服务器，为 AI 助手提供医疗信息系统**真实安全扫描**能力。支持端口扫描、漏洞检测、医疗系统识别、合规报告生成等 14 个工具。
 
 ## ✨ 功能特性
 
-- 🔍 **漏洞扫描** - 全面的医疗系统漏洞检测
-- 🌐 **网络发现** - 自动发现网络中的医疗设备和系统
-- 📊 **报告生成** - 专业的安全扫描报告
-- 🏥 **医疗系统识别** - 识别 HIS、PACS、RIS 等医疗系统
-- 📈 **统计分析** - 漏洞统计和趋势分析
+- 🔍 **真实漏洞扫描** — 支持 quick/standard/deep 三种模式，自动调用 nmap/nuclei 或 Python 回退
+- 🏥 **医疗系统识别** — 自动识别 HIS/PACS/LIS/RIS/EMR 等医疗信息系统
+- 🌐 **网络发现** — 网络资产发现和端口扫描
+- 📊 **报告生成** — 支持 PDF/HTML/JSON/CSV 格式报告
+- 🔐 **合规检查** — 符合等保 2.0 要求
+- ⚡ **零依赖运行** — 无需安装 nmap/nuclei，Python 原生扫描也能用
 
 ## 🚀 快速开始
 
-### 安装
+### 1. 安装
 
 ```bash
-# 包已发布到 PyPI 后可用：
-# uvx hospital-vuln-mcp
-# pip install hospital-vuln-mcp
+# 使用 uvx（推荐）
+uvx hospital-vuln-mcp
 
-# 当前 PyPI 尚无本包，请从源码安装：
-pip install -e .
-python -m hospital_vuln_mcp
+# 或使用 pip
+pip install hospital-vuln-mcp
 ```
 
-### 在 Claude Desktop 中使用
+### 2. 集成到 MCP 客户端
 
-编辑 `~/Library/Application Support/Claude/claude_desktop_config.json`（将 `cwd` 换成本机项目绝对路径）：
+在 MCP 客户端配置文件中添加：
 
 ```json
 {
   "mcpServers": {
-    "hospital-vuln": {
-      "command": "python",
-      "args": ["-m", "hospital_vuln_mcp"],
-      "cwd": "/你的绝对路径/hospital-vuln-mcp-v2"
+    "hospital-vuln-mcp": {
+      "command": "uvx",
+      "args": ["hospital-vuln-mcp"],
+      "env": {
+        "HOSPITAL_VULN_MCP_LOG_LEVEL": "INFO"
+      }
     }
   }
 }
 ```
 
-### SSE 模式（本地）
+### 3. 可选：安装扫描引擎增强
 
 ```bash
-hospital-vuln-mcp --transport sse --port 8000
+# 安装 nmap（端口扫描增强）
+# macOS
+brew install nmap
+# Ubuntu/Debian
+sudo apt install nmap
+# Windows
+choco install nmap
+
+# 安装 nuclei（漏洞扫描增强）
+go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
 ```
 
-默认绑定 `127.0.0.1`。容器或需公网反代时使用：
+> 💡 不安装也能用，会自动降级到 Python 原生扫描。
 
-```bash
-hospital-vuln-mcp --transport sse --host 0.0.0.0 --port 8000
+## 📖 使用方法
+
+### 基础扫描
+
+在 Claude / Cursor / 其他 MCP 客户端中输入：
+
+```
+请帮我扫描 192.168.1.100 这台服务器
 ```
 
-### Streamable HTTP（与魔搭官方 MCP 文档中的 HTTP 传输同类）
+AI 会调用 `start_scan` 工具，返回真实的端口和漏洞结果。
 
-```bash
-hospital-vuln-mcp --transport http --port 8000
+### 指定扫描类型
+
+```
+对 10.0.0.50 进行深度扫描
 ```
 
-本服务基于当前 `mcp` 自带 FastMCP，Streamable HTTP 默认路径一般为 **`/mcp`**（请以运行日志或 MCP Inspector 为准）。SSE 默认路径一般为 **`GET /sse`**，消息 **`POST /messages/`**。
-
-### 远程 SSE / HTTP（魔搭「托管 / 公网」类场景）
-
-若平台要求提供 **StreamableHTTP** 或 **SSE** 的公网地址，你需要：
-
-1. 将服务以 `--host 0.0.0.0` 暴露端口（Docker 镜像默认已如此）。
-2. 在具备合法备案与 TLS 的域名上配置 **HTTPS 反向代理**（如 Nginx/Caddy），转发到容器内 `8000`。
-3. 在魔搭 MCP 配置中填写对外 URL（示例：`https://your-domain.com/sse` 或 `https://your-domain.com/mcp`，须与实际路径一致）。
-
-### Cursor / VS Code（URL 连接远程 MCP 时）
-
-在 `~/.cursor/mcp.json` 或工作区 `.vscode/mcp.json` 中可使用（将 URL 换成你的公网地址）：
-
-```json
-{
-  "mcpServers": {
-    "hospital-vuln-remote": {
-      "url": "https://YOUR_PUBLIC_HOST/sse"
-    }
-  }
-}
+```
+快速扫描 www.example.com
 ```
 
----
+### 端口扫描
 
-## 📤 魔搭 MCP 广场上架检查（上传失败时逐项核对）
+```
+扫描 192.168.1.1 的 22,80,443,3306 端口
+```
 
-对照魔搭当前常见要求，建议按下表自检：
+### 医疗系统识别
 
-| 要求 | 说明 | 本项目状态 |
-|------|------|--------------|
-| 完成 MCP 代码 | 工具/资源/提示词可用 | 已实现（14 工具 + 3 资源 + 4 提示词） |
-| **PyPI** | 使用 `uvx hospital-vuln-mcp` 时包须在 PyPI 可查 | **已检测**：`https://pypi.org/pypi/hospital-vuln-mcp/json` 返回 **404**，包尚未发布；`mcp_config.json` 与 `modelscope.yaml` 已改为 **`python -m hospital_vuln_mcp`**。发布 PyPI 后可再改回 `uvx` |
-| GitHub | `repository` / `homepage` 可访问 | 已改为当前仓库：`https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0` |
-| **STDIO 配置** | 提供可执行的 `command` + `args` | `mcp_config.json` 为 **`python` + `-m hospital_vuln_mcp`**（与魔搭从仓库构建安装后的运行方式一致） |
-| SSE / StreamableHTTP（可选） | 若声明远程类型，需 **公网 HTTPS** 与可达路径 | 需自行部署；见上文「远程 SSE / HTTP」 |
-| 使用指引 | README + 客户端示例 | 见本文与 `README.md` |
+```
+识别 192.168.1.100 运行的医疗系统类型
+```
 
-**仍上传失败时（第 3 步）**：请到 [GitHub Issues](https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0/issues) 新建工单，并粘贴魔搭返回的**完整错误原文**（或含错误码、请求 ID 的截图说明），便于对照平台校验规则排查。
+### 网络发现
 
-**本地 Claude / Cursor 客户端示例**（与 `mcp_config.json` 一致，需已 `pip install -e .` 且 `python` 能找到包）：
+```
+发现 192.168.1.0/24 网段的活跃主机
+```
 
-```json
-{
-  "mcpServers": {
-    "hospital-vuln": {
-      "command": "python",
-      "args": ["-m", "hospital_vuln_mcp"],
-      "cwd": "/你的绝对路径/hospital-vuln-mcp-v2"
-    }
-  }
-}
+## 🎯 提示词指南
+
+### 安全评估
+
+```
+我需要对一台新上线的 HIS 系统进行安全评估，
+目标 IP 是 192.168.1.200，请帮我进行标准扫描并生成报告。
+```
+
+### 定期巡检
+
+```
+请帮我巡检内网 10.0.0.0/24 网段的医疗系统安全状况。
+```
+
+### 等保合规
+
+```
+我需要为等保测评准备安全扫描报告，
+请对目标系统进行深度扫描并导出合规报告。
+```
+
+### 应急响应
+
+```
+发现 192.168.1.50 可能有安全风险，
+请立即进行快速扫描帮我排查问题。
+```
+
+### 资产盘点
+
+```
+帮我盘点医院网络中的所有医疗信息系统，
+识别系统类型和开放端口。
 ```
 
 ## 🛠️ 工具列表
 
 ### 扫描管理
-| 工具 | 描述 |
-|------|------|
-| `start_scan` | 启动漏洞扫描任务 |
-| `get_scan_status` | 查询扫描状态和结果 |
-| `list_scans` | 列出扫描任务历史 |
-| `cancel_scan` | 取消正在进行的扫描 |
+
+| 工具 | 描述 | 参数 |
+|------|------|------|
+| `start_scan` | 启动漏洞扫描 | `target`: IP/域名/URL, `scan_type`: quick/standard/deep |
+| `get_scan_status` | 查询扫描状态 | `task_id`: 任务ID |
+| `list_scans` | 列出扫描历史 | `limit`: 数量, `status`: 状态筛选 |
+| `cancel_scan` | 取消扫描 | `task_id`: 任务ID |
 
 ### 漏洞管理
-| 工具 | 描述 |
-|------|------|
-| `list_vulnerabilities` | 列出发现的漏洞 |
-| `get_vulnerability` | 获取漏洞详细信息 |
-| `update_vulnerability_status` | 更新漏洞处理状态 |
-| `get_vuln_stats` | 漏洞统计信息 |
+
+| 工具 | 描述 | 参数 |
+|------|------|------|
+| `list_vulnerabilities` | 列出漏洞 | `severity`: 严重程度, `status`: 状态 |
+| `get_vulnerability` | 获取漏洞详情 | `vuln_id`: 漏洞ID |
+| `update_vulnerability_status` | 更新漏洞状态 | `vuln_id`, `status`, `comment` |
 
 ### 网络工具
-| 工具 | 描述 |
-|------|------|
-| `discover_network` | 网络发现和设备识别 |
-| `scan_host_ports` | 主机端口扫描 |
-| `identify_medical_systems` | 识别医疗系统类型 |
+
+| 工具 | 描述 | 参数 |
+|------|------|------|
+| `discover_network` | 网络发现 | `cidr`: 网段 |
+| `scan_host_ports` | 端口扫描 | `host`: 主机, `ports`: 端口范围 |
+| `identify_medical_systems` | 医疗系统识别 | `target`: 目标 |
 
 ### 报告工具
+
+| 工具 | 描述 | 参数 |
+|------|------|------|
+| `generate_report` | 生成报告 | `scan_id`, `report_type`, `format` |
+| `list_reports` | 列出报告 | `limit`: 数量 |
+
+### 系统工具
+
 | 工具 | 描述 |
 |------|------|
-| `generate_report` | 生成扫描报告 |
-| `list_reports` | 列出历史报告 |
-| `get_system_status` | 获取系统整体状态 |
+| `get_vuln_stats` | 漏洞统计分析 |
+| `get_system_status` | 系统状态（含 nmap/nuclei 可用性） |
 
-## 💡 使用示例
+## ⚙️ 扫描引擎
 
-### 示例 1: 扫描医院内网
+### 自动检测
 
-```
-请帮我扫描医院 192.168.10.0/24 网段的设备漏洞
-```
+启动扫描时自动检测本机 nmap 和 nuclei：
+- 有 nmap → 精确端口扫描 + 服务识别
+- 无 nmap → Python socket 多线程扫描
+- 有 nuclei → 专业漏洞扫描（4000+ 检测模板）
+- 无 nuclei → 内置规则检测常见风险
 
-AI 助手将执行：
-1. `discover_network` - 发现网络设备
-2. `identify_medical_systems` - 识别医疗系统
-3. `start_scan` - 对发现的系统进行漏洞扫描
-4. `generate_report` - 生成安全报告
+### 内置漏洞检测规则
 
-### 示例 2: 查看漏洞统计
+| 风险类型 | 严重程度 | 检测条件 |
+|---------|---------|---------|
+| MySQL 服务暴露 | Medium | 3306 端口开放 |
+| Redis 未授权访问 | High | 6379 端口开放 |
+| MongoDB 未授权访问 | High | 27017 端口开放 |
+| RDP 远程桌面暴露 | High | 3389 端口开放 |
+| PHPInfo 信息泄露 | Medium | HTTP 响应含 phpinfo |
+| 目录遍历风险 | Medium | HTTP 响应含 "Index of" |
 
-```
-查看本月发现的严重漏洞
-```
+### 医疗系统指纹
 
-AI 助手将执行：
-1. `get_vuln_stats` - 获取统计数据
-2. `list_vulnerabilities` - 列出严重漏洞
+| 系统类型 | 关键词 |
+|---------|--------|
+| HIS | 医院信息系统、门诊、住院、挂号、处方 |
+| PACS | 影像、DICOM、放射 |
+| LIS | 检验、实验室、生化、免疫 |
+| RIS | 放射信息系统、影像诊断 |
+| EMR | 电子病历、病程记录 |
 
-### 示例 3: 端口扫描
+## 📖 环境变量
 
-```
-扫描 192.168.1.100 的开放端口
-```
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `HOSPITAL_VULN_MCP_LOG_LEVEL` | 日志级别 | `INFO` |
+| `HOSPITAL_VULN_MCP_SCAN_TIMEOUT` | 扫描超时（秒） | `300` |
+| `HOSPITAL_VULN_MCP_MAX_CONCURRENT_SCANS` | 最大并发扫描数 | `10` |
 
-AI 助手将执行：
-1. `scan_host_ports` - 端口扫描
-2. `identify_medical_systems` - 识别系统类型
+## 📋 更新日志
 
-## 📁 项目结构
+### v1.1.1 (2026-04-22)
 
-```
-hospital-vuln-mcp/
-├── src/
-│   └── hospital_vuln_mcp/
-│       ├── __init__.py
-│       ├── server.py       # MCP 服务器实现
-│       ├── cli.py          # 命令行接口
-│       ├── settings.py     # 配置管理
-│       └── _version.py     # 版本信息
-├── pyproject.toml          # Python 项目配置
-├── README.md               # 英文文档
-├── README_CN.md            # 中文文档
-├── LICENSE                 # MIT 许可证
-└── .gitignore             # Git 忽略配置
-```
+- 📝 更新 README，添加使用方法和提示词指南
+- 📝 添加扫描引擎说明和内置规则文档
+- 📝 添加医疗系统指纹识别说明
 
-## 🔧 开发
+### v1.1.0 (2026-04-21)
 
-```bash
-# 克隆仓库
-git clone https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0.git
-cd hospital-vuln-scanner-mcp-v1.1.0
+- ✨ 新增真实扫描能力（nmap/nuclei 自动检测）
+- ✨ 新增 Python 原生端口扫描回退
+- ✨ 新增医疗系统指纹识别
+- ✨ 新增内置漏洞检测规则
+- 🐛 修复扫描任务永远卡在 running 的问题
 
-# 安装依赖
-pip install -e ".[dev]"
+### v1.0.0 (2026-04-21)
 
-# 运行开发服务器
-python -m hospital_vuln_mcp --transport stdio
-```
+- 🎉 初始版本
+- ✨ 14 个 MCP 工具
+- ✨ 魔搭 MCP 广场上架
 
 ## 📄 许可证
 
-MIT License - 详见 [LICENSE](LICENSE) 文件
+MIT License
 
-## 🤝 贡献
+## 🔗 链接
 
-欢迎提交 Issue 和 Pull Request！
-
-## 📮 联系我们
-
-如有问题或建议，请通过以下方式联系：
-- 提交 GitHub Issue
-- 发送邮件至: security@example.com
-
----
-
-**注意**: 本工具仅用于授权的安全测试和漏洞评估，请勿用于非法用途。
+- **GitHub**: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0
+- **Issues**: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0/issues
+- **PyPI**: https://pypi.org/project/hospital-vuln-mcp/
+- **魔搭 MCP 广场**: https://modelscope.cn/mcp/servers

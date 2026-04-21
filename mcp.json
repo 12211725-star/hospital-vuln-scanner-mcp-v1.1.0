@@ -1,6 +1,6 @@
 {
   "name": "hospital-vuln-mcp",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "医院漏洞扫描 MCP 服务器，为 AI 助手提供医疗系统安全扫描能力",
   "author": "Hospital Security Team",
   "license": "MIT",
@@ -9,19 +9,61 @@
     "url": "https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0.git"
   },
   "tools": [
-    {"name": "start_scan", "description": "启动漏洞扫描"},
-    {"name": "get_scan_status", "description": "查询扫描状态"},
-    {"name": "list_scans", "description": "列出扫描任务"},
-    {"name": "cancel_scan", "description": "取消扫描"},
-    {"name": "list_vulnerabilities", "description": "列出漏洞"},
-    {"name": "get_vulnerability", "description": "获取漏洞详情"},
-    {"name": "update_vulnerability_status", "description": "更新漏洞状态"},
-    {"name": "discover_network", "description": "网络发现"},
-    {"name": "scan_host_ports", "description": "端口扫描"},
-    {"name": "identify_medical_systems", "description": "识别医疗系统"},
-    {"name": "generate_report", "description": "生成报告"},
-    {"name": "list_reports", "description": "列出报告"},
-    {"name": "get_vuln_stats", "description": "漏洞统计"},
-    {"name": "get_system_status", "description": "系统状态"}
+    {
+      "name": "start_scan",
+      "description": "启动漏洞扫描"
+    },
+    {
+      "name": "get_scan_status",
+      "description": "查询扫描状态"
+    },
+    {
+      "name": "list_scans",
+      "description": "列出扫描任务"
+    },
+    {
+      "name": "cancel_scan",
+      "description": "取消扫描"
+    },
+    {
+      "name": "list_vulnerabilities",
+      "description": "列出漏洞"
+    },
+    {
+      "name": "get_vulnerability",
+      "description": "获取漏洞详情"
+    },
+    {
+      "name": "update_vulnerability_status",
+      "description": "更新漏洞状态"
+    },
+    {
+      "name": "discover_network",
+      "description": "网络发现"
+    },
+    {
+      "name": "scan_host_ports",
+      "description": "端口扫描"
+    },
+    {
+      "name": "identify_medical_systems",
+      "description": "识别医疗系统"
+    },
+    {
+      "name": "generate_report",
+      "description": "生成报告"
+    },
+    {
+      "name": "list_reports",
+      "description": "列出报告"
+    },
+    {
+      "name": "get_vuln_stats",
+      "description": "漏洞统计"
+    },
+    {
+      "name": "get_system_status",
+      "description": "系统状态"
+    }
   ]
 }
