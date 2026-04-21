@@ -1,6 +1,6 @@
 [project]
 name = "hospital-vuln-mcp"
-version = "1.1.6"
+dynamic = ["version"]
 description = "Hospital Vulnerability Scanner MCP Server - Security scanning for healthcare systems"
 readme = "README.md"
 license = { text = "MIT" }
@@ -9,10 +9,10 @@ authors = [
     { name = "Hospital Security Team", email = "security@example.com" }
 ]
 dependencies = [
-    "mcp>=1.0.0",
     "fastmcp>=2.10.6",
     "pydantic>=2.0.0",
     "pydantic-settings>=2.10.1",
+    "httpx[http2]>=0.27.0",
 ]
 keywords = ["mcp", "vulnerability", "scanner", "hospital", "security", "healthcare", "医疗", "安全", "漏洞扫描"]
 classifiers = [
@@ -28,22 +28,20 @@ classifiers = [
 ]
 
 [project.scripts]
-hospital-vuln-scanner-mcp = "hospital_vuln_mcp:main"
+hospital-vuln-mcp = "hospital_vuln_mcp:main"
 
 [project.urls]
 Homepage = "https://github.com/12211725-star/hospital-vuln-scanner-mcp"
 Repository = "https://github.com/12211725-star/hospital-vuln-scanner-mcp"
 Documentation = "https://github.com/12211725-star/hospital-vuln-scanner-mcp/blob/main/README.md"
+"Bug Tracker" = "https://github.com/12211725-star/hospital-vuln-scanner-mcp/issues"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.0.0",
-    "pytest-asyncio>=0.24.0",
-]
+[tool.hatch.version]
+path = "src/hospital_vuln_mcp/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hospital_vuln_mcp"]
@@ -53,6 +51,13 @@ include = [
     "src/hospital_vuln_mcp/**/*.py",
     "README.md",
     "LICENSE",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.12",
 ]
 
 [tool.pytest.ini_options]
