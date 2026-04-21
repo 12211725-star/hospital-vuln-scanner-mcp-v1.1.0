@@ -5,7 +5,7 @@
 # 将来发布 PyPI 后，可将 command 改回 uvx hospital-vuln-mcp。
 
 name: hospital-vuln-mcp
-version: "1.0.0"
+version: "1.1.2"
 displayName: 医院漏洞扫描MCP
 displayNameEn: Hospital Vulnerability Scanner MCP
 description: |
@@ -197,6 +197,6 @@ examples:
 
 # 文档链接
 documentation:
-  homepage: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0
-  repository: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0
-  issues: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0/issues
+  homepage: https://github.com/12211725-star/hospital-vuln-scanner-mcp
+  repository: https://github.com/12211725-star/hospital-vuln-scanner-mcp
+  issues: https://github.com/12211725-star/hospital-vuln-scanner-mcp/issues

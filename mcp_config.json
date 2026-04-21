@@ -1,24 +1,41 @@
 {
   "name": "hospital-vuln-mcp",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "displayName": "医院漏洞扫描MCP",
   "displayNameEn": "Hospital Vulnerability Scanner MCP",
   "description": "为AI助手提供医疗系统安全扫描能力的MCP服务器，支持漏洞扫描、网络发现、医疗系统识别和报告生成",
   "descriptionEn": "MCP server providing security scanning capabilities for healthcare systems, supporting vulnerability scanning, network discovery, medical system identification and report generation",
   "serviceType": "stdio",
   "command": "python",
-  "args": ["-m", "hospital_vuln_mcp"],
+  "args": [
+    "-m",
+    "hospital_vuln_mcp"
+  ],
   "env": {},
   "author": {
     "name": "Hospital Security Team",
     "email": "security@example.com",
-    "homepage": "https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0"
+    "homepage": "https://github.com/12211725-star/hospital-vuln-scanner-mcp"
   },
-  "categories": ["security", "healthcare", "vulnerability-scanner"],
-  "tags": ["mcp", "security", "hospital", "vulnerability", "scanner", "healthcare", "医疗", "安全", "漏洞扫描"],
+  "categories": [
+    "security",
+    "healthcare",
+    "vulnerability-scanner"
+  ],
+  "tags": [
+    "mcp",
+    "security",
+    "hospital",
+    "vulnerability",
+    "scanner",
+    "healthcare",
+    "医疗",
+    "安全",
+    "漏洞扫描"
+  ],
   "license": "MIT",
-  "homepage": "https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0",
-  "repository": "https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0",
+  "homepage": "https://github.com/12211725-star/hospital-vuln-scanner-mcp",
+  "repository": "https://github.com/12211725-star/hospital-vuln-scanner-mcp",
   "icon": "https://img.shields.io/badge/MCP-Hospital%20Vuln-blue?style=flat-square",
   "readme": "README.md",
   "requirements": {
