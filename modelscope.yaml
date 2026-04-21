@@ -1,0 +1,199 @@
+# ModelScope MCP 配置文件
+# 基于魔搭MCP开发规范 v1.0
+
+name: hospital-vuln-mcp
+version: "1.0.0"
+displayName: 医院漏洞扫描MCP
+displayNameEn: Hospital Vulnerability Scanner MCP
+description: |
+  为AI助手提供医疗系统安全扫描能力的MCP服务器。
+  支持漏洞扫描、网络发现、医疗系统识别、报告生成等功能，
+  专为HIS、PACS、LIS、RIS等医疗系统设计。
+descriptionEn: |
+  MCP server providing security scanning capabilities for healthcare systems.
+  Supports vulnerability scanning, network discovery, medical system identification,
+  and report generation, designed for HIS, PACS, LIS, RIS and other medical systems.
+
+author: Hospital Security Team
+license: MIT
+
+# MCP 服务配置
+mcp:
+  name: hospital-vuln-mcp
+  transport:
+    - stdio
+    - sse
+  port: 8000
+  
+# 部署配置
+deploy:
+  type: docker
+  dockerfile: ./Dockerfile
+  context: .
+  command: python -m hospital_vuln_mcp --transport sse --port 8000
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    - name: PYTHONDONTWRITEBYTECODE
+      value: "1"
+  ports:
+    - containerPort: 8000
+      hostPort: 8000
+
+# 工具列表（14个工具）
+tools:
+  # 扫描管理工具
+  - name: start_scan
+    displayName: 启动扫描
+    description: 启动漏洞扫描任务，支持quick/standard/deep三种模式
+    
+  - name: get_scan_status
+    displayName: 查询扫描状态
+    description: 查询扫描任务状态和结果
+    
+  - name: list_scans
+    displayName: 列出扫描任务
+    description: 列出历史扫描任务
+    
+  - name: cancel_scan
+    displayName: 取消扫描
+    description: 取消正在运行的扫描任务
+    
+  # 漏洞管理工具
+  - name: list_vulnerabilities
+    displayName: 列出漏洞
+    description: 列出发现的漏洞，支持按严重程度和状态筛选
+    
+  - name: get_vulnerability
+    displayName: 获取漏洞详情
+    description: 获取漏洞详细信息
+    
+  - name: update_vulnerability_status
+    displayName: 更新漏洞状态
+    description: 更新漏洞处理状态
+    
+  # 网络工具
+  - name: discover_network
+    displayName: 网络发现
+    description: 发现本地网络设备和医疗系统
+    
+  - name: scan_host_ports
+    displayName: 端口扫描
+    description: 扫描主机开放端口
+    
+  - name: identify_medical_systems
+    displayName: 识别医疗系统
+    description: 识别HIS/PACS/LIS/RIS等医疗系统类型
+    
+  # 报告工具
+  - name: generate_report
+    displayName: 生成报告
+    description: 生成PDF/HTML/JSON格式的扫描报告
+    
+  - name: list_reports
+    displayName: 列出报告
+    description: 列出历史报告
+    
+  # 系统工具
+  - name: get_vuln_stats
+    displayName: 漏洞统计
+    description: 获取漏洞统计信息
+    
+  - name: get_system_status
+    displayName: 系统状态
+    description: 获取系统状态和版本信息
+
+# 资源列表
+resources:
+  - uri: config://app-info
+    name: 应用信息
+    description: 获取应用配置和版本信息
+    
+  - uri: config://scan-profiles
+    name: 扫描配置
+    description: 获取扫描配置文件说明
+    
+  - uri: docs://severity-levels
+    name: 严重程度分级
+    description: 获取漏洞严重程度分级说明
+
+# 提示词模板
+prompts:
+  - name: vulnerability_analysis
+    displayName: 漏洞分析
+    description: 生成漏洞分析报告
+    
+  - name: scan_planning
+    displayName: 扫描规划
+    description: 制定安全扫描计划
+    
+  - name: compliance_check
+    displayName: 合规性检查
+    description: 进行等保2.0等合规性检查
+    
+  - name: executive_summary
+    displayName: 管理层摘要
+    description: 生成管理层摘要报告
+
+# 分类
+categories:
+  - security
+  - healthcare
+  - vulnerability-scanner
+  
+# 标签
+tags:
+  - mcp
+  - security
+  - hospital
+  - vulnerability
+  - scanner
+  - healthcare
+  - his
+  - pacs
+  - lis
+  - ris
+  - emr
+  - 安全
+  - 漏洞扫描
+  - 医院
+  - 医疗
+  - 医疗信息安全
+
+# 运行要求
+requirements:
+  python: ">=3.10"
+  dependencies:
+    - mcp>=1.0.0
+    - fastmcp>=2.10.6
+    - pydantic>=2.0.0
+    - pydantic-settings>=2.10.1
+
+# 安装命令
+install:
+  pypi: hospital-vuln-mcp
+  command: uvx hospital-vuln-mcp
+  commandWindows: python -m hospital_vuln_mcp
+
+# 使用示例
+examples:
+  - title: 启动快速扫描
+    description: 对目标系统进行快速漏洞扫描
+    code: |
+      start_scan(target="192.168.1.100", scan_type="quick")
+      
+  - title: 网络发现
+    description: 发现网络中的医疗系统
+    code: |
+      discover_network(cidr="192.168.1.0/24")
+      
+  - title: 生成合规报告
+    description: 生成等保2.0合规性检查报告
+    code: |
+      generate_report(scan_id="abc123", report_type="compliance", format="pdf")
+
+# 文档链接
+documentation:
+  homepage: https://github.com/hospital-security/hospital-vuln-mcp
+  repository: https://github.com/hospital-security/hospital-vuln-mcp
+  issues: https://github.com/hospital-security/hospital-vuln-mcp/issues
