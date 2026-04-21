@@ -48,8 +48,12 @@ dev = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/hospital_vuln_mcp"]
 
-[tool.hatch.version]
-path = "src/hospital_vuln_mcp/_version.py"
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/hospital_vuln_mcp/**/*.py",
+    "README.md",
+    "LICENSE",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
