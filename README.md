@@ -2,7 +2,7 @@
 
 [![PyPI Version](https://img.shields.io/pypi/v/hospital-vuln-mcp.svg)](https://pypi.org/project/hospital-vuln-mcp)
 [![Python](https://img.shields.io/pypi/pyversions/hospital-vuln-mcp.svg)](https://pypi.org/project/hospital-vuln-mcp)
-[![License](https://img.shields.io/github/license/12211725-star/hospital-vuln-scanner-mcp-v1.1.0.svg)](https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/12211725-star/hospital-vuln-mcp.svg)](https://github.com/12211725-star/hospital-vuln-mcp/blob/main/LICENSE)
 
 English | [中文](README_CN.md)
 
@@ -251,8 +251,8 @@ start_scan()
 ## 🔧 开发
 
 ```bash
-git clone https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0.git
-cd hospital-vuln-scanner-mcp-v1.1.0
+git clone https://github.com/12211725-star/hospital-vuln-mcp.git
+cd hospital-vuln-mcp
 pip install -e ".[dev]"
 
 # 运行测试
@@ -290,7 +290,7 @@ MIT License
 
 ## 🔗 链接
 
-- **GitHub**: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0
-- **Issues**: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0/issues
+- **GitHub**: https://github.com/12211725-star/hospital-vuln-mcp
+- **Issues**: https://github.com/12211725-star/hospital-vuln-mcp/issues
 - **PyPI**: https://pypi.org/project/hospital-vuln-mcp/
 - **魔搭 MCP 广场**: https://modelscope.cn/mcp/servers

@@ -31,9 +31,9 @@ classifiers = [
 hospital-vuln-mcp = "hospital_vuln_mcp:main"
 
 [project.urls]
-Homepage = "https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0"
-Repository = "https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0"
-Documentation = "https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0/blob/main/README.md"
+Homepage = "https://github.com/12211725-star/hospital-vuln-mcp"
+Repository = "https://github.com/12211725-star/hospital-vuln-mcp"
+Documentation = "https://github.com/12211725-star/hospital-vuln-mcp/blob/main/README.md"
 
 [build-system]
 requires = ["hatchling"]
