@@ -20,64 +20,37 @@ English | [中文](README_CN.md)
 ### 1. 安装
 
 ```bash
-# 使用 uvx（推荐）
-uvx hospital-vuln-mcp
-
-# 或使用 pip
 pip install hospital-vuln-mcp
 ```
 
 ### 2. 集成到 MCP 客户端
 
-在 MCP 客户端配置文件中添加：
+在 MCP 客户端配置文件中添加以下配置：
 
 ```json
 {
   "mcpServers": {
     "hospital-vuln-mcp": {
       "command": "uvx",
-      "args": ["hospital-vuln-mcp"]
+      "args": ["hospital-vuln-mcp"],
+      "env": {
+        "HOSPITAL_VULN_LOG_LEVEL": "INFO"
+      }
     }
   }
 }
 ```
 
-### Docker 方式
-
-```json
-{
-  "mcpServers": {
-    "hospital-vuln-mcp": {
-      "command": "docker",
-      "args": [
-        "run", "--rm", "-i",
-        "ghcr.io/12211725-star/hospital-vuln-mcp:latest"
-      ]
-    }
-  }
-}
-```
-
-### SSE / HTTP 远程部署
+### SSE 远程部署
 
 ```bash
-# SSE 模式
-hospital-vuln-mcp --transport sse --port 8000
-
-# Streamable HTTP 模式
-hospital-vuln-mcp --transport http --port 8000
+hospital-vuln-mcp --transport sse --host 0.0.0.0 --port 8000
 ```
 
-远程客户端配置：
+### Streamable HTTP 远程部署
 
-```json
-{
-  "mcpServers": {
-    "hospital-vuln-mcp": {
-      "url": "http://127.0.0.1:8000/mcp/"
-    }
-  }
-}
+```bash
+hospital-vuln-mcp --transport http --host 0.0.0.0 --port 8000
 ```
 
 ## 🛠️ 工具列表
@@ -121,38 +94,20 @@ hospital-vuln-mcp --transport http --port 8000
 | `get_vuln_stats` | 漏洞统计分析 |
 | `get_system_status` | 获取系统运行状态 |
 
-## 📖 配置说明
-
-### 环境变量
+## 📖 环境变量
 
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
 | `HOSPITAL_VULN_LOG_LEVEL` | 日志级别 | `INFO` |
 | `HOSPITAL_VULN_DB_PATH` | 数据库路径 | `./data/vulns.db` |
 
-### 传输模式
-
-| 模式 | 用途 | 端点 |
-|------|------|------|
-| `stdio` | 本地桌面集成（默认） | 标准输入输出 |
-| `sse` | Web 远程访问 | `GET /sse` + `POST /messages/` |
-| `http` | Streamable HTTP（推荐） | `POST /mcp/` |
-
 ## 🔧 开发
 
 ```bash
-# 克隆仓库
 git clone https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0.git
 cd hospital-vuln-scanner-mcp-v1.1.0
-
-# 安装开发依赖
 pip install -e ".[dev]"
-
-# 运行测试
 pytest
-
-# 本地运行
-python -m hospital_vuln_mcp
 ```
 
 ## 📄 许可证
