@@ -1,5 +1,8 @@
 # ModelScope MCP 配置文件
 # 基于魔搭MCP开发规范 v1.0
+#
+# 上架注意：已实测 PyPI 尚无 hospital-vuln-mcp，install 使用 python -m（魔搭从仓库构建后可用）。
+# 将来发布 PyPI 后，可将 command 改回 uvx hospital-vuln-mcp。
 
 name: hospital-vuln-mcp
 version: "1.0.0"
@@ -30,7 +33,7 @@ deploy:
   type: docker
   dockerfile: ./Dockerfile
   context: .
-  command: python -m hospital_vuln_mcp --transport sse --port 8000
+  command: python -m hospital_vuln_mcp --transport sse --port 8000 --host 0.0.0.0
   env:
     - name: PYTHONUNBUFFERED
       value: "1"
@@ -169,10 +172,10 @@ requirements:
     - pydantic>=2.0.0
     - pydantic-settings>=2.10.1
 
-# 安装命令
+# 安装命令（与 mcp_config.json 一致：依赖平台从本仓库安装依赖后可执行 python -m）
 install:
   pypi: hospital-vuln-mcp
-  command: uvx hospital-vuln-mcp
+  command: python -m hospital_vuln_mcp
   commandWindows: python -m hospital_vuln_mcp
 
 # 使用示例
@@ -194,6 +197,6 @@ examples:
 
 # 文档链接
 documentation:
-  homepage: https://github.com/hospital-security/hospital-vuln-mcp
-  repository: https://github.com/hospital-security/hospital-vuln-mcp
-  issues: https://github.com/hospital-security/hospital-vuln-mcp/issues
+  homepage: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0
+  repository: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0
+  issues: https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0/issues

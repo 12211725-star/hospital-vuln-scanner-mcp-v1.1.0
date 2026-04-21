@@ -19,32 +19,102 @@
 ### 安装
 
 ```bash
-# 使用 uvx（推荐）
-uvx hospital-vuln-mcp
+# 包已发布到 PyPI 后可用：
+# uvx hospital-vuln-mcp
+# pip install hospital-vuln-mcp
 
-# 或使用 pip
-pip install hospital-vuln-mcp
+# 当前 PyPI 尚无本包，请从源码安装：
+pip install -e .
+python -m hospital_vuln_mcp
 ```
 
 ### 在 Claude Desktop 中使用
 
-编辑 `~/Library/Application Support/Claude/claude_desktop_config.json`:
+编辑 `~/Library/Application Support/Claude/claude_desktop_config.json`（将 `cwd` 换成本机项目绝对路径）：
 
 ```json
 {
   "mcpServers": {
     "hospital-vuln": {
-      "command": "uvx",
-      "args": ["hospital-vuln-mcp"]
+      "command": "python",
+      "args": ["-m", "hospital_vuln_mcp"],
+      "cwd": "/你的绝对路径/hospital-vuln-mcp-v2"
     }
   }
 }
 ```
 
-### SSE 模式
+### SSE 模式（本地）
 
 ```bash
 hospital-vuln-mcp --transport sse --port 8000
+```
+
+默认绑定 `127.0.0.1`。容器或需公网反代时使用：
+
+```bash
+hospital-vuln-mcp --transport sse --host 0.0.0.0 --port 8000
+```
+
+### Streamable HTTP（与魔搭官方 MCP 文档中的 HTTP 传输同类）
+
+```bash
+hospital-vuln-mcp --transport http --port 8000
+```
+
+本服务基于当前 `mcp` 自带 FastMCP，Streamable HTTP 默认路径一般为 **`/mcp`**（请以运行日志或 MCP Inspector 为准）。SSE 默认路径一般为 **`GET /sse`**，消息 **`POST /messages/`**。
+
+### 远程 SSE / HTTP（魔搭「托管 / 公网」类场景）
+
+若平台要求提供 **StreamableHTTP** 或 **SSE** 的公网地址，你需要：
+
+1. 将服务以 `--host 0.0.0.0` 暴露端口（Docker 镜像默认已如此）。
+2. 在具备合法备案与 TLS 的域名上配置 **HTTPS 反向代理**（如 Nginx/Caddy），转发到容器内 `8000`。
+3. 在魔搭 MCP 配置中填写对外 URL（示例：`https://your-domain.com/sse` 或 `https://your-domain.com/mcp`，须与实际路径一致）。
+
+### Cursor / VS Code（URL 连接远程 MCP 时）
+
+在 `~/.cursor/mcp.json` 或工作区 `.vscode/mcp.json` 中可使用（将 URL 换成你的公网地址）：
+
+```json
+{
+  "mcpServers": {
+    "hospital-vuln-remote": {
+      "url": "https://YOUR_PUBLIC_HOST/sse"
+    }
+  }
+}
+```
+
+---
+
+## 📤 魔搭 MCP 广场上架检查（上传失败时逐项核对）
+
+对照魔搭当前常见要求，建议按下表自检：
+
+| 要求 | 说明 | 本项目状态 |
+|------|------|--------------|
+| 完成 MCP 代码 | 工具/资源/提示词可用 | 已实现（14 工具 + 3 资源 + 4 提示词） |
+| **PyPI** | 使用 `uvx hospital-vuln-mcp` 时包须在 PyPI 可查 | **已检测**：`https://pypi.org/pypi/hospital-vuln-mcp/json` 返回 **404**，包尚未发布；`mcp_config.json` 与 `modelscope.yaml` 已改为 **`python -m hospital_vuln_mcp`**。发布 PyPI 后可再改回 `uvx` |
+| GitHub | `repository` / `homepage` 可访问 | 已改为当前仓库：`https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0` |
+| **STDIO 配置** | 提供可执行的 `command` + `args` | `mcp_config.json` 为 **`python` + `-m hospital_vuln_mcp`**（与魔搭从仓库构建安装后的运行方式一致） |
+| SSE / StreamableHTTP（可选） | 若声明远程类型，需 **公网 HTTPS** 与可达路径 | 需自行部署；见上文「远程 SSE / HTTP」 |
+| 使用指引 | README + 客户端示例 | 见本文与 `README.md` |
+
+**仍上传失败时（第 3 步）**：请到 [GitHub Issues](https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0/issues) 新建工单，并粘贴魔搭返回的**完整错误原文**（或含错误码、请求 ID 的截图说明），便于对照平台校验规则排查。
+
+**本地 Claude / Cursor 客户端示例**（与 `mcp_config.json` 一致，需已 `pip install -e .` 且 `python` 能找到包）：
+
+```json
+{
+  "mcpServers": {
+    "hospital-vuln": {
+      "command": "python",
+      "args": ["-m", "hospital_vuln_mcp"],
+      "cwd": "/你的绝对路径/hospital-vuln-mcp-v2"
+    }
+  }
+}
 ```
 
 ## 🛠️ 工具列表
@@ -135,8 +205,8 @@ hospital-vuln-mcp/
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/hospital-vuln-mcp.git
-cd hospital-vuln-mcp
+git clone https://github.com/12211725-star/hospital-vuln-scanner-mcp-v1.1.0.git
+cd hospital-vuln-scanner-mcp-v1.1.0
 
 # 安装依赖
 pip install -e ".[dev]"

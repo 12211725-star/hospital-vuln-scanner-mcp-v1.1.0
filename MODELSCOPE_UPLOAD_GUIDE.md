@@ -85,7 +85,7 @@ git push -u origin master
 3. 填写 MCP 信息：
    - **MCP 名称**: `hospital-vuln-mcp`
    - **运行方式**: `stdio` 或 `sse`
-   - **安装命令**: `uvx hospital-vuln-mcp`
+   - **安装/启动命令**: 与仓库根目录 `mcp_config.json` 一致，当前为 **`python -m hospital_vuln_mcp`**（因 PyPI 尚未发布；发布后可改为 `uvx hospital-vuln-mcp`）
    - **Python 包名**: `hospital-vuln-mcp`
 4. 保存配置
 
@@ -154,8 +154,8 @@ tags:                                      # 标签
   - 医院
 
 install:                                   # 安装方式
-  pypi: hospital-vuln-mcp                 # PyPI 包名
-  command: uvx hospital-vuln-mcp          # 运行命令
+  pypi: hospital-vuln-mcp                 # PyPI 包名（可预留）
+  command: python -m hospital_vuln_mcp    # 未上 PyPI 时与 mcp_config 一致
 ```
 
 ---
@@ -166,10 +166,15 @@ install:                                   # 安装方式
 
 - [ ] 代码已上传到魔搭仓库
 - [ ] `modelscope.yaml` 文件已包含
-- [ ] README 文档完整（中英文）
+- [ ] `mcp_config.json` 已包含 **STDIO** 所需的 `command` / `args`（当前为 `python` + `-m hospital_vuln_mcp`，与未上 PyPI 的情况一致）
+- [ ] 若改回 `uvx hospital-vuln-mcp`：**PyPI 已发布同名包**，否则安装阶段会失败
+- [ ] `repository` / `homepage` 指向**真实可访问**的 Git 仓库（已配置为 `12211725-star/hospital-vuln-scanner-mcp-v1.1.0`）
+- [ ] `icon` 为非空 URL（本项目使用 shields 占位图，可按需换成项目 Logo）
+- [ ] README 文档完整（中英文），并阅读 **README_CN.md** 中的「魔搭 MCP 广场上架检查」
 - [ ] MCP 配置已设置
 - [ ] 工具列表正确显示
 - [ ] 安装命令可正常运行
+- [ ] 若提供 **SSE / Streamable HTTP**：已准备 **公网 HTTPS** 与反代，且 `deploy.command` 使用 `--host 0.0.0.0`（与当前 Dockerfile 一致）
 
 ---
 
@@ -183,11 +188,14 @@ install:                                   # 安装方式
 
 或在本地测试：
 ```bash
-# 安装
-uvx hospital-vuln-mcp
+# 安装（源码）
+pip install -e .
+
+# 测试 stdio（默认）
+python -m hospital_vuln_mcp
 
 # 测试 SSE 模式
-hospital-vuln-mcp --transport sse --port 8000
+python -m hospital_vuln_mcp --transport sse --port 8000
 ```
 
 ---

@@ -17,6 +17,7 @@ Examples:
   %(prog)s --transport sse        # SSE on port 8000
   %(prog)s --transport http       # Streamable HTTP (MCP) on port 8000
   %(prog)s --transport sse --port 9000
+  %(prog)s --transport sse --host 0.0.0.0 --port 8000   # Docker / 公网暴露
         """,
     )
 
@@ -25,6 +26,12 @@ Examples:
         choices=["stdio", "sse", "http"],
         default="stdio",
         help="Transport type",
+    )
+
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Bind address for SSE / Streamable HTTP (use 0.0.0.0 in container or behind reverse proxy)",
     )
 
     parser.add_argument(
@@ -50,7 +57,7 @@ Examples:
             server.run(transport="stdio")
         else:
             # FastMCP 在构造时绑定 host/port；run() 不接受 port 参数
-            server = create_server(port=args.port)
+            server = create_server(host=args.host, port=args.port)
             if args.transport == "http":
                 server.run(transport="streamable-http")
             else:

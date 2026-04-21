@@ -31,5 +31,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "from hospital_vuln_mcp.server import create_server; print('OK')" || exit 1
 
-# 默认使用stdio模式运行
-CMD ["python", "-m", "hospital_vuln_mcp"]
+# 与 modelscope.yaml deploy 一致：SSE + 监听所有网卡（便于端口映射 / 反代）
+# 仅需 stdio 时：docker run ... python -m hospital_vuln_mcp
+CMD ["python", "-m", "hospital_vuln_mcp", "--transport", "sse", "--port", "8000", "--host", "0.0.0.0"]
