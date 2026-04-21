@@ -34,7 +34,7 @@ pip install hospital-vuln-mcp
       "command": "uvx",
       "args": ["hospital-vuln-mcp"],
       "env": {
-        "HOSPITAL_VULN_LOG_LEVEL": "INFO"
+        "HOSPITAL_VULN_MCP_LOG_LEVEL": "INFO"
       }
     }
   }
@@ -98,7 +98,7 @@ hospital-vuln-mcp --transport http --host 0.0.0.0 --port 8000
 
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
-| `HOSPITAL_VULN_LOG_LEVEL` | 日志级别 | `INFO` |
+| `HOSPITAL_VULN_MCP_LOG_LEVEL` | 日志级别 | `INFO` |
 | `HOSPITAL_VULN_DB_PATH` | 数据库路径 | `./data/vulns.db` |
 
 ## 🔧 开发
