@@ -1,102 +1,93 @@
-"""System tools."""
-from typing import Annotated
+"""System status tools."""
+import json
+import platform
+import sys
 from datetime import datetime
+from typing import Annotated
 
 from fastmcp import FastMCP
 from pydantic import Field
 
-from . import scan_tools as scan_tools_mod
-from . import vuln_tools as vuln_tools_mod
+from .._version import __version__
+from ..scanner import NMAP_AVAILABLE, NUCLEI_AVAILABLE
+from ..tools.scan_tools import _scans, _scan_results
+from ..tools.vuln_tools import _vulnerabilities
+from ..tools.report_tools import _reports
 
 
 def register_system_tools(mcp: FastMCP) -> None:
-    """Register system tools."""
-    
+    """Register system status tools."""
+
     @mcp.tool()
     async def get_vuln_stats(
-        period: Annotated[str, Field(description="统计周期: today/week/month/all")] = "all",
+        period: Annotated[str, Field(description="统计周期：today/week/month/all")] = "all",
     ) -> str:
         """
-        获取漏洞统计信息
-        
+        漏洞统计分析
+
         ## 功能说明
-        获取漏洞的统计数据，包括按严重程度、状态、系统类型的分布。
-        
-        ## 统计周期
-        - **today**: 今日数据
-        - **week**: 本周数据
-        - **month**: 本月数据
-        - **all**: 全部历史数据
-        
+        统计漏洞数量、按严重程度和状态分布。
+
         Args:
             period: 统计周期
-        
-        Returns:
-            JSON格式的统计数据
-        """
-        import json
-        
-        valid_periods = ["today", "week", "month", "all"]
-        if period not in valid_periods:
-            return json.dumps({"error": f"Invalid period. Must be one of: {valid_periods}"}, ensure_ascii=False)
 
-        vulns = list(vuln_tools_mod._vulnerabilities.values())
-        sev_keys = ["critical", "high", "medium", "low", "info"]
-        st_keys = ["open", "fixed", "accepted", "false_positive"]
-        by_severity = {k: 0 for k in sev_keys}
-        by_status = {k: 0 for k in st_keys}
+        Returns:
+            JSON格式的漏洞统计信息
+        """
+        vulns = list(_vulnerabilities.values())
+
+        by_severity = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
+        by_status = {"open": 0, "fixed": 0, "accepted": 0, "false_positive": 0}
+
         for v in vulns:
-            if v.severity in by_severity:
-                by_severity[v.severity] += 1
-            if v.status in by_status:
-                by_status[v.status] += 1
-        # 演示数据未区分系统类型时，统一计入 Other（后续可接真实资产字段）
-        by_system_type = {
-            "HIS": 0,
-            "PACS": 0,
-            "LIS": 0,
-            "RIS": 0,
-            "EMR": 0,
-            "Other": len(vulns),
-        }
+            by_severity[v.severity] = by_severity.get(v.severity, 0) + 1
+            by_status[v.status] = by_status.get(v.status, 0) + 1
 
         return json.dumps({
             "total": len(vulns),
             "by_severity": by_severity,
             "by_status": by_status,
-            "by_system_type": by_system_type,
+            "total_scans": len(_scans),
+            "completed_scans": len([s for s in _scans.values() if s.status == "completed"]),
+            "total_reports": len(_reports),
             "period": period,
-            "generated_at": datetime.now().isoformat(),
-        }, ensure_ascii=False)
+        }, ensure_ascii=False, default=str)
 
     @mcp.tool()
     async def get_system_status() -> str:
         """
-        获取系统状态和版本信息
-        
+        获取系统运行状态和扫描引擎信息
+
+        ## 功能说明
+        返回 MCP 服务器状态、扫描引擎可用性和运行环境信息。
+
         Returns:
             JSON格式的系统状态
         """
-        import json
-        from .._version import __version__
-
-        scans = scan_tools_mod._scans
-        active = sum(1 for s in scans.values() if s.status == "running")
-        pending = sum(1 for s in scans.values() if s.status == "pending")
+        active_scans = len([s for s in _scans.values() if s.status == "running"])
+        queued_scans = len([s for s in _scans.values() if s.status == "pending"])
 
         return json.dumps({
             "server": "hospital-vuln-mcp",
             "version": __version__,
             "status": "ok",
-            "uptime": "N/A",
-            "total_scans": len(scans),
-            "active_scans": active,
-            "queued_scans": pending,
-            "features": [
-                "vulnerability_scanning",
-                "network_discovery",
-                "medical_system_identification",
-                "report_generation"
-            ],
-            "checked_at": datetime.now().isoformat(),
-        }, ensure_ascii=False)
+            "python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+            "platform": platform.system(),
+            "machine": platform.machine(),
+            "scan_engines": {
+                "nmap": {"available": NMAP_AVAILABLE, "status": "✅ 已安装" if NMAP_AVAILABLE else "❌ 未安装（将使用 socket 回退）"},
+                "nuclei": {"available": NUCLEI_AVAILABLE, "status": "✅ 已安装" if NUCLEI_AVAILABLE else "❌ 未安装（将使用内置规则回退）"},
+            },
+            "scan_stats": {
+                "total_scans": len(_scans),
+                "active_scans": active_scans,
+                "queued_scans": queued_scans,
+                "completed_scans": len([s for s in _scans.values() if s.status == "completed"]),
+                "failed_scans": len([s for s in _scans.values() if s.status == "failed"]),
+            },
+            "vuln_stats": {
+                "total_vulnerabilities": len(_vulnerabilities),
+                "total_reports": len(_reports),
+            },
+            "tip": "安装 nmap 和 nuclei 可获得更强大的扫描能力" if not (NMAP_AVAILABLE and NUCLEI_AVAILABLE) else "所有扫描引擎已就绪",
+        }, ensure_ascii=False, default=str)
