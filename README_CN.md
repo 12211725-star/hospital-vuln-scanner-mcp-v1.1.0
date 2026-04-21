@@ -37,8 +37,8 @@ pip install hospital-vuln-mcp
 {
   "mcpServers": {
     "hospital-vuln-mcp": {
-      "command": "uvx",
-      "args": ["hospital-vuln-mcp"],
+      "url": "http://127.0.0.1:8000/mcp/",
+      
       "env": {
         "HOSPITAL_VULN_MCP_LOG_LEVEL": "INFO"
       }

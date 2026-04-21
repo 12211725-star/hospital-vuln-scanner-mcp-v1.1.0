@@ -1,6 +1,6 @@
 [project]
 name = "hospital-vuln-mcp"
-version = "1.1.4"
+version = "1.1.5"
 description = "Hospital Vulnerability Scanner MCP Server - Security scanning for healthcare systems"
 readme = "README.md"
 license = { text = "MIT" }
