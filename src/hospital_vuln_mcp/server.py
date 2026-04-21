@@ -5,7 +5,7 @@ Hospital Vulnerability Scanner MCP Server
 """
 from typing import Any
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 from ._version import __version__
 from .tools import (
