@@ -4,9 +4,9 @@ Real scanning engine for hospital vulnerability scanner.
 """
 import asyncio
 import json
+import os
 import socket
 import subprocess
-import shutil
 import re
 import uuid
 from datetime import datetime
@@ -14,9 +14,30 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 
-# 检查外部工具是否可用
-NMAP_AVAILABLE = shutil.which("nmap") is not None
-NUCLEI_AVAILABLE = shutil.which("nuclei") is not None
+# 检查外部工具是否可用（支持自定义路径）
+def _find_tool(name: str) -> Optional[str]:
+    """查找工具路径，支持环境变量指定"""
+    # 1. 先检查环境变量
+    env_path = os.environ.get(f"{name.upper()}_PATH", "")
+    if env_path and os.path.isfile(env_path):
+        return env_path
+    # 2. 常见路径
+    common_paths = [
+        f"/usr/local/bin/{name}",
+        f"/usr/bin/{name}",
+        f"{os.path.expanduser('~/.local/bin/')}{name}",
+    ]
+    for p in common_paths:
+        if os.path.isfile(p):
+            return p
+    # 3. shutil.which
+    import shutil
+    return shutil.which(name)
+
+NMAP_PATH = _find_tool("nmap")
+NUCLEI_PATH = _find_tool("nuclei")
+NMAP_AVAILABLE = NMAP_PATH is not None
+NUCLEI_AVAILABLE = NUCLEI_PATH is not None
 
 # 常用端口映射
 COMMON_PORTS = {
@@ -95,13 +116,13 @@ def scan_ports_socket(host: str, ports: List[int], timeout: float = 1.0, max_wor
 
 def scan_ports_nmap(host: str, ports: List[int]) -> List[Dict]:
     """使用 nmap 扫描端口（如果可用）"""
-    if not NMAP_AVAILABLE:
+    if not NMAP_AVAILABLE or not NMAP_PATH:
         return scan_ports_socket(host, ports)
     
     ports_str = ",".join(str(p) for p in ports[:100])  # nmap 限制
     try:
         result = subprocess.run(
-            ["nmap", "-Pn", "-sT", "-p", ports_str, "--open", "-T4", host],
+            [NMAP_PATH, "-Pn", "-sT", "-p", ports_str, "--open", "-T4", host],
             capture_output=True, text=True, timeout=60
         )
         open_ports = []
@@ -222,10 +243,10 @@ async def standard_scan(host: str) -> Dict[str, Any]:
     
     # 漏洞检测（如果 nuclei 可用）
     vulnerabilities = []
-    if NUCLEI_AVAILABLE:
+    if NUCLEI_AVAILABLE and NUCLEI_PATH:
         try:
             result = subprocess.run(
-                ["nuclei", "-u", host, "-silent", "-json"],
+                [NUCLEI_PATH, "-u", host, "-silent", "-json"],
                 capture_output=True, text=True, timeout=120
             )
             for line in result.stdout.strip().split("\n"):

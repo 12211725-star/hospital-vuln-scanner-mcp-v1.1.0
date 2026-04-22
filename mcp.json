@@ -1,6 +1,6 @@
 {
   "name": "hospital-vuln-mcp",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "医院漏洞扫描 MCP 服务器，为 AI 助手提供医疗系统安全扫描能力",
   "author": "Hospital Security Team",
   "license": "MIT",
