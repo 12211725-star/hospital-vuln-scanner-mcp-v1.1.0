@@ -203,8 +203,8 @@ AI 会调用 `start_scan` 工具，返回：
 | 工具 | 描述 | 参数 |
 |------|------|------|
 | `discover_network` | 网络发现 | `cidr`: 网段 |
-| `scan_host_ports` | 端口扫描 | `host`: 主机, `ports`: 端口范围 |
-| `identify_medical_systems` | 医疗系统识别 | `target`: 目标 |
+| `scan_host_ports` | 端口扫描 | `host`: 主机, `ports`: 端口列表（可选） |
+| `identify_medical_systems` | 医疗系统识别 | `target`: 目标, `ports`: 端口列表（可选） |
 
 ### 报告工具
 
