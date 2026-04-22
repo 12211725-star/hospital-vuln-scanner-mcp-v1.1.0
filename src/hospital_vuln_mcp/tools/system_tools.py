@@ -9,7 +9,7 @@ from fastmcp import FastMCP
 from pydantic import Field
 
 from .._version import __version__
-from ..scanner import NMAP_AVAILABLE, NUCLEI_AVAILABLE
+from ..scanner import _find_tool, _NMAP_COMMON_PATHS, _NUCLEI_COMMON_PATHS
 from ..tools.scan_tools import _scans, _scan_results
 from ..tools.vuln_tools import _vulnerabilities
 from ..tools.report_tools import _reports
@@ -75,8 +75,8 @@ def register_system_tools(mcp: FastMCP) -> None:
             "platform": platform.system(),
             "machine": platform.machine(),
             "scan_engines": {
-                "nmap": {"available": NMAP_AVAILABLE, "status": "✅ 已安装" if NMAP_AVAILABLE else "❌ 未安装（将使用 socket 回退）"},
-                "nuclei": {"available": NUCLEI_AVAILABLE, "status": "✅ 已安装" if NUCLEI_AVAILABLE else "❌ 未安装（将使用内置规则回退）"},
+                "nmap": {"available": _find_tool("nmap", _NMAP_COMMON_PATHS) is not None, "status": "✅ 已安装" if _find_tool("nmap", _NMAP_COMMON_PATHS) is not None else "❌ 未安装（将使用 socket 回退）"},
+                "nuclei": {"available": _find_tool("nuclei", _NUCLEI_COMMON_PATHS) is not None, "status": "✅ 已安装" if _find_tool("nuclei", _NUCLEI_COMMON_PATHS) is not None else "❌ 未安装（将使用内置规则回退）"},
             },
             "scan_stats": {
                 "total_scans": len(_scans),
@@ -89,5 +89,5 @@ def register_system_tools(mcp: FastMCP) -> None:
                 "total_vulnerabilities": len(_vulnerabilities),
                 "total_reports": len(_reports),
             },
-            "tip": "安装 nmap 和 nuclei 可获得更强大的扫描能力" if not (NMAP_AVAILABLE and NUCLEI_AVAILABLE) else "所有扫描引擎已就绪",
+            "tip": "安装 nmap 和 nuclei 可获得更强大的扫描能力" if not (_find_tool("nmap", _NMAP_COMMON_PATHS) is not None and _find_tool("nuclei", _NUCLEI_COMMON_PATHS) is not None) else "所有扫描引擎已就绪",
         }, ensure_ascii=False, default=str)

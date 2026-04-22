@@ -9,35 +9,56 @@ import socket
 import subprocess
 import re
 import uuid
+import shutil
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 
-# 检查外部工具是否可用（支持自定义路径）
-def _find_tool(name: str) -> Optional[str]:
-    """查找工具路径，支持环境变量指定"""
-    # 1. 先检查环境变量
+# 常见工具路径（静态列表，不依赖 HOME 环境变量）
+_NMAP_COMMON_PATHS = [
+    "/usr/local/bin/nmap",
+    "/usr/bin/nmap",
+    "/opt/homebrew/bin/nmap",
+    "/home/linuxbrew/.linuxbrew/bin/nmap",
+]
+_NUCLEI_COMMON_PATHS = [
+    "/usr/local/bin/nuclei",
+    "/usr/bin/nuclei",
+    "/opt/homebrew/bin/nuclei",
+    "/home/linuxbrew/.linuxbrew/bin/nuclei",
+]
+
+def _find_tool(name: str, common_paths: List[str]) -> Optional[str]:
+    """查找工具路径，延迟检测（每次调用时检测）"""
+    # 1. 环境变量指定
     env_path = os.environ.get(f"{name.upper()}_PATH", "")
-    if env_path and os.path.isfile(env_path):
-        return env_path
+    if env_path:
+        # 支持相对路径和绝对路径
+        if os.path.isfile(env_path):
+            return env_path
+        expanded = os.path.expanduser(env_path)
+        if os.path.isfile(expanded):
+            return expanded
+    
     # 2. 常见路径
-    common_paths = [
-        f"/usr/local/bin/{name}",
-        f"/usr/bin/{name}",
-        f"{os.path.expanduser('~/.local/bin/')}{name}",
-    ]
     for p in common_paths:
         if os.path.isfile(p):
             return p
-    # 3. shutil.which
-    import shutil
-    return shutil.which(name)
-
-NMAP_PATH = _find_tool("nmap")
-NUCLEI_PATH = _find_tool("nuclei")
-NMAP_AVAILABLE = NMAP_PATH is not None
-NUCLEI_AVAILABLE = NUCLEI_PATH is not None
+    
+    # 3. shutil.which（当前 PATH）
+    found = shutil.which(name)
+    if found:
+        return found
+    
+    # 4. HOME 目录下的 .local/bin
+    home = os.environ.get("HOME", "")
+    if home:
+        local_bin = os.path.join(home, ".local", "bin", name)
+        if os.path.isfile(local_bin):
+            return local_bin
+    
+    return None
 
 # 常用端口映射
 COMMON_PORTS = {
@@ -116,13 +137,13 @@ def scan_ports_socket(host: str, ports: List[int], timeout: float = 1.0, max_wor
 
 def scan_ports_nmap(host: str, ports: List[int]) -> List[Dict]:
     """使用 nmap 扫描端口（如果可用）"""
-    if not NMAP_AVAILABLE or not NMAP_PATH:
+    if not _find_tool("nmap", _NMAP_COMMON_PATHS) is None:
         return scan_ports_socket(host, ports)
     
     ports_str = ",".join(str(p) for p in ports[:100])  # nmap 限制
     try:
         result = subprocess.run(
-            [NMAP_PATH, "-Pn", "-sT", "-p", ports_str, "--open", "-T4", host],
+            [nmap_path, "-Pn", "-sT", "-p", ports_str, "--open", "-T4", host],
             capture_output=True, text=True, timeout=60
         )
         open_ports = []
@@ -201,7 +222,8 @@ async def quick_scan(host: str) -> Dict[str, Any]:
     ports = [21, 22, 23, 25, 80, 110, 143, 443, 445, 1433, 1521, 3306, 3389, 5432, 5900, 6379, 8080, 8443, 9000, 27017]
     
     # 扫描端口
-    if NMAP_AVAILABLE:
+    nmap_path = _find_tool("nmap", _NMAP_COMMON_PATHS)
+    if nmap_path:
         open_ports = scan_ports_nmap(host, ports)
     else:
         open_ports = scan_ports_socket(host, ports, timeout=1.5)
@@ -236,17 +258,19 @@ async def standard_scan(host: str) -> Dict[str, Any]:
     ports = list(COMMON_PORTS.keys()) + list(range(8000, 8100))
     
     # 端口扫描
-    if NMAP_AVAILABLE:
+    nmap_path = _find_tool("nmap", _NMAP_COMMON_PATHS)
+    if nmap_path:
         open_ports = scan_ports_nmap(host, ports[:100])
     else:
         open_ports = scan_ports_socket(host, ports, timeout=1.0)
     
     # 漏洞检测（如果 nuclei 可用）
     vulnerabilities = []
-    if NUCLEI_AVAILABLE and NUCLEI_PATH:
+    nuclei_path = _find_tool("nuclei", _NUCLEI_COMMON_PATHS)
+    if nuclei_path:
         try:
             result = subprocess.run(
-                [NUCLEI_PATH, "-u", host, "-silent", "-json"],
+                [nuclei_path, "-u", host, "-silent", "-json"],
                 capture_output=True, text=True, timeout=120
             )
             for line in result.stdout.strip().split("\n"):
@@ -265,7 +289,7 @@ async def standard_scan(host: str) -> Dict[str, Any]:
             pass
     
     # 如果 nuclei 不可用，使用内置规则检测常见漏洞
-    if not NUCLEI_AVAILABLE:
+    if _find_tool("nuclei", _NUCLEI_COMMON_PATHS) is None:
         vulnerabilities = await detect_common_vulns(host, open_ports)
     
     # 医疗系统识别

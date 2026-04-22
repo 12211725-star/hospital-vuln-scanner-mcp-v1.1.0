@@ -9,8 +9,8 @@ from pydantic import Field
 
 from ..scanner import (
     scan_ports_nmap, scan_ports_socket, identify_service_banner,
-    detect_medical_system, expand_cidr, NMAP_AVAILABLE, NUCLEI_AVAILABLE,
-    COMMON_PORTS,
+    detect_medical_system, expand_cidr, _find_tool,
+    _NMAP_COMMON_PATHS, _NUCLEI_COMMON_PATHS,
 )
 
 
@@ -70,7 +70,7 @@ def register_network_tools(mcp: FastMCP) -> None:
             "target_cidr": cidr,
             "discovered_hosts": discovered_hosts,
             "hosts_found": len(discovered_hosts),
-            "nmap_available": NMAP_AVAILABLE,
+            "nmap_available": _find_tool("nmap", _NMAP_COMMON_PATHS) is not None,
             "message": f"网络发现完成，发现 {len(discovered_hosts)} 台活跃主机"
         }, ensure_ascii=False)
 
@@ -116,7 +116,7 @@ def register_network_tools(mcp: FastMCP) -> None:
             port_list = [22, 80, 443, 3306, 3389, 8080, 8443]
 
         # 执行扫描
-        if NMAP_AVAILABLE and len(port_list) <= 100:
+        if _find_tool("nmap", _NMAP_COMMON_PATHS) is not None and len(port_list) <= 100:
             open_ports = scan_ports_nmap(host, port_list)
         else:
             open_ports = scan_ports_socket(host, port_list, timeout=1.5)
@@ -132,7 +132,7 @@ def register_network_tools(mcp: FastMCP) -> None:
             "scanned_ports": len(port_list),
             "open_ports": open_ports,
             "open_count": len(open_ports),
-            "scan_method": "nmap" if NMAP_AVAILABLE else "socket",
+            "scan_method": "nmap" if _find_tool("nmap", _NMAP_COMMON_PATHS) is not None else "socket",
             "scan_time": datetime.now().isoformat(),
             "message": f"端口扫描完成: 扫描 {len(port_list)} 个端口，发现 {len(open_ports)} 个开放端口"
         }, ensure_ascii=False)

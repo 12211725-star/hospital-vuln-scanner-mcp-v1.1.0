@@ -9,7 +9,10 @@ from fastmcp import FastMCP
 from pydantic import Field
 
 from ..models import ScanTask, ScanResult, Vulnerability
-from ..scanner import quick_scan, standard_scan, detect_common_vulns, NMAP_AVAILABLE, NUCLEI_AVAILABLE
+from ..scanner import (
+    quick_scan, standard_scan, detect_common_vulns,
+    _find_tool, _NMAP_COMMON_PATHS, _NUCLEI_COMMON_PATHS,
+)
 
 
 # 内存存储
@@ -117,8 +120,8 @@ def register_scan_tools(mcp: FastMCP) -> None:
                     "medical_systems": result_data.get("medical_systems", []),
                     "open_ports": result_data.get("open_ports", []),
                     "scan_time": result_data.get("scan_time", now),
-                    "nmap_available": NMAP_AVAILABLE,
-                    "nuclei_available": NUCLEI_AVAILABLE,
+                    "nmap_available": _find_tool("nmap", _NMAP_COMMON_PATHS) is not None,
+                    "nuclei_available": _find_tool("nuclei", _NUCLEI_COMMON_PATHS) is not None,
                 },
             )
 
@@ -133,8 +136,8 @@ def register_scan_tools(mcp: FastMCP) -> None:
                 "vulnerabilities_found": len(vulns),
                 "vulnerabilities": [v.model_dump() for v in vulns],
                 "medical_systems": result_data.get("medical_systems", []),
-                "nmap_used": NMAP_AVAILABLE,
-                "nuclei_used": NUCLEI_AVAILABLE,
+                "nmap_used": _find_tool("nmap", _NMAP_COMMON_PATHS) is not None,
+                "nuclei_used": _find_tool("nuclei", _NUCLEI_COMMON_PATHS) is not None,
                 "message": f"扫描完成: {host}，发现 {len(result_data.get('open_ports', []))} 个开放端口，{len(vulns)} 个漏洞"
             }, ensure_ascii=False, default=str)
 
