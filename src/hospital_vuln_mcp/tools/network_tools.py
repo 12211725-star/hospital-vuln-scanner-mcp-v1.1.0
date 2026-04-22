@@ -2,7 +2,7 @@
 import json
 import socket
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastmcp import FastMCP
 from pydantic import Field
@@ -77,7 +77,7 @@ def register_network_tools(mcp: FastMCP) -> None:
     @mcp.tool()
     async def scan_host_ports(
         host: Annotated[str, Field(description="目标主机IP或域名")],
-        ports: Annotated[str, Field(description="端口范围，如：'22,80,443' 或 '1-1000'")] = "22,80,443,3306,3389,8080,8443",
+        ports: Annotated[Optional[list[int]], Field(description="端口列表，如 [22, 80, 443]；不填则扫描常见端口")] = None,
     ) -> str:
         """
         端口扫描 - 真实检测主机开放的端口和服务
@@ -88,29 +88,16 @@ def register_network_tools(mcp: FastMCP) -> None:
 
         Args:
             host: 目标主机IP或域名
-            ports: 端口范围，如 '22,80,443'
+            ports: 端口列表，如 [22, 80, 443]；不填则扫描常见端口
 
         Returns:
             JSON格式的端口扫描结果，包含开放端口和服务信息
         """
-        # 解析端口参数
-        port_list = []
-        for part in ports.split(","):
-            part = part.strip()
-            if "-" in part:
-                try:
-                    start, end = part.split("-", 1)
-                    port_list.extend(range(int(start), int(end) + 1))
-                except ValueError:
-                    pass
-            else:
-                try:
-                    port_list.append(int(part))
-                except ValueError:
-                    pass
-
-        # 限制端口数量
-        port_list = list(set(port_list))[:500]
+        # 使用用户指定端口或默认常见端口
+        if ports:
+            port_list = list(set(ports))[:500]
+        else:
+            port_list = [22, 80, 443, 3306, 3389, 8080, 8443]
 
         if not port_list:
             port_list = [22, 80, 443, 3306, 3389, 8080, 8443]
@@ -140,6 +127,7 @@ def register_network_tools(mcp: FastMCP) -> None:
     @mcp.tool()
     async def identify_medical_systems(
         target: Annotated[str, Field(description="目标IP或URL")],
+        ports: Annotated[Optional[list[int]], Field(description="指定扫描端口列表，如 [80, 443, 3306]；不填则扫描常见端口")] = None,
     ) -> str:
         """
         识别医疗系统类型
@@ -156,6 +144,7 @@ def register_network_tools(mcp: FastMCP) -> None:
 
         Args:
             target: 目标IP或URL
+            ports: 可选，指定扫描端口列表；不填则自动扫描常见端口
 
         Returns:
             JSON格式的系统识别结果
@@ -167,9 +156,9 @@ def register_network_tools(mcp: FastMCP) -> None:
             host = host[8:]
         host = host.split("/")[0].split(":")[0]
 
-        # 扫描常见端口
-        ports = [22, 80, 443, 3306, 3389, 8080, 8443]
-        open_ports = scan_ports_socket(host, ports, timeout=1.5)
+        # 使用用户指定端口或默认常见端口
+        scan_ports = ports if ports else [22, 80, 443, 3306, 3389, 8080, 8443]
+        open_ports = scan_ports_socket(host, scan_ports, timeout=1.5)
 
         # 识别系统和 banner
         systems = []
